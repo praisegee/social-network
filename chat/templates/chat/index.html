@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Room</title>
+</head>
+<body>
+
+    <h1>Room</h1>
+
+    {% for message in messages %}
+        {% if message.sender == user %}
+            <p style="color: red">{{ message }}</p>
+        {% else %}
+            <p style="color: green">{{ message }}</p>
+        {% endif %}
+    {% endfor %}
+
+    <form action="" id="form">
+        <input type="text" id="message">
+        <input type="submit" id="submit" value="Send">
+    </form>
+
+    <div id="div">
+
+    </div>
+
+<script>
+    const group_slug = "{{ group.slug }}"
+    const user_id = "{{ user.id }}"
+    const username = "{{ user.username }}"
+
+    const url = `ws://${window.location.host}/ws/chat/group/name/`
+    const socket = new WebSocket(url);
+
+    socket.onopen = function(e){
+        console.log()
+        let form = document.getElementById("form");
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            let message = document.getElementById("message").value;
+            let is_authenticated = true;
+            if (user_id === "None"){
+                is_authenticated = false;
+            }
+            socket.send(JSON.stringify({
+                message,
+                is_authenticated,
+                user_id,
+                group_slug,
+                username,
+            }))
+            form.reset();
+        }
+    }
+
+    socket.onmessage = function(e){
+        let data = JSON.parse(e.data)
+        console.log(data)
+        let div = document.getElementById("div")
+        div.insertAdjacentHTML("beforebegin", `<div>${data.message}</div>`)
+    }
+
+    socket.onclose = function(e){
+        console.log("CLOSED", e)
+    }
+
+    socket.onerror = function(e){
+        console.log("ERROR: ", e)
+    }
+
+
+</script>
+
+</body>
+</html>
