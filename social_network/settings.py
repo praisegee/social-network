@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'corsheaders',
+    'allauth',
+    'allauth.socialaccount',
 
     # django apps
     'django.contrib.admin',
